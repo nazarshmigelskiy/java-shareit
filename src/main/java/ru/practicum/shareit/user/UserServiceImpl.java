@@ -11,25 +11,30 @@ import java.util.Collection;
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
 
-    public Collection<User> getAllUsers() {
-        return userRepository.getAllUsers();
+    public Collection<UserDto> getAllUsers() {
+        return userRepository.getAllUsers().stream()
+                .map(UserMapper::toUserDto)
+                .toList();
     }
 
-    public User getById(Long id) {
-        return userRepository.getById(id);
+    public UserDto getById(Long id) {
+        return UserMapper.toUserDto(userRepository.getById(id));
     }
 
-    public User createUser(User user) {
-        if (!validateEmail(user.getEmail()))
+    public UserDto createUser(UserDto userDto) {
+        if (!validateEmail(userDto.getEmail()))
             throw new ConflictException("Пользователь с указанным Email уже существует");
-        return userRepository.createUser(user);
+        return UserMapper.toUserDto(userRepository.createUser(UserMapper.toUser(userDto)));
     }
 
     public UserDto updateUser(Long id, UserDto userDto) {
-        User user = getById(id);
+        User user = UserMapper.toUser(getById(id));
 
-        if (!validateEmail(userDto.getEmail()))
-            throw new ConflictException("Пользователь с указанным Email уже существует");
+        if (userDto.getEmail() != null && !userDto.getEmail().isBlank()) {
+            if (!validateEmailForUpdate(userDto.getEmail(), id))
+                throw new ConflictException("Пользователь с указанным Email уже существует");
+            user.setEmail(userDto.getEmail());
+        }
 
         if (userDto.getName() != null && !userDto.getName().isBlank()) user.setName(userDto.getName());
 
@@ -46,6 +51,13 @@ public class UserServiceImpl implements UserService {
         return userRepository.getUserList().values().stream()
                 .map(User::getEmail)
                 .noneMatch(email1 -> email1.equals(email));
+    }
+
+    private boolean validateEmailForUpdate(String email, Long userId) {
+        return userRepository.getUserList().values().stream()
+                .filter(u -> !u.getId().equals(userId))
+                .map(User::getEmail)
+                .noneMatch(email::equals);
     }
 
 }

@@ -3,17 +3,17 @@ package ru.practicum.shareit.item;
 import java.util.Collection;
 
 public interface ItemService {
-    Collection<Item> getAll();
+    Collection<ItemDto> getAll();
 
-    Collection<Item> getByUserId(Long userid);
+    Collection<ItemDto> getByUserId(Long userid);
 
-    Item getById(Long id);
+    ItemDto getById(Long id);
 
-    Item createItem(Long userId, Item item);
+    ItemDto createItem(Long userId, ItemDto itemDto);
 
     ItemDto updateItem(Long userId, Long itemId, ItemDto itemDto);
 
     void deleteItem(Long userId, Long itemId);
 
-    Collection<Item> search(String text);
+    Collection<ItemDto> search(String text);
 }

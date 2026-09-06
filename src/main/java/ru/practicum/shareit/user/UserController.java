@@ -1,7 +1,7 @@
 package ru.practicum.shareit.user;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collection;
@@ -9,23 +9,22 @@ import java.util.Collection;
 @RequiredArgsConstructor
 @RequestMapping("/users")
 @RestController
-@Validated
 public class UserController {
     private final UserService userService;
 
     @GetMapping
-    public Collection<User> getUsers() {
+    public Collection<UserDto> getUsers() {
         return userService.getAllUsers();
     }
 
     @GetMapping("/{id}")
-    public User getById(@PathVariable Long id) {
+    public UserDto getById(@PathVariable Long id) {
         return userService.getById(id);
     }
 
     @PostMapping
-    public User createUser(@Validated @RequestBody User user) {
-        return userService.createUser(user);
+    public UserDto createUser(@Valid @RequestBody UserDto userDto) {
+        return userService.createUser(userDto);
     }
 
     @PatchMapping("/{id}")

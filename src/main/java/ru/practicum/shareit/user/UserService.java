@@ -4,11 +4,11 @@ import java.util.Collection;
 
 public interface UserService {
 
-    Collection<User> getAllUsers();
+    Collection<UserDto> getAllUsers();
 
-    User getById(Long id);
+    UserDto getById(Long id);
 
-    User createUser(User user);
+    UserDto createUser(UserDto userDto);
 
     UserDto updateUser(Long id, UserDto user);
 

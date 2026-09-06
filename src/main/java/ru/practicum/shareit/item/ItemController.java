@@ -1,7 +1,7 @@
 package ru.practicum.shareit.item;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collection;
@@ -9,29 +9,28 @@ import java.util.Collection;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/items")
-@Validated
 public class ItemController {
     private final ItemService itemService;
 
     @GetMapping("/all")
-    public Collection<Item> getAllItems() {
+    public Collection<ItemDto> getAllItems() {
         return itemService.getAll();
     }
 
     @GetMapping
-    public Collection<Item> getByUserId(@RequestHeader("X-Sharer-User-Id") Long userId) {
+    public Collection<ItemDto> getByUserId(@RequestHeader("X-Sharer-User-Id") Long userId) {
         return itemService.getByUserId(userId);
     }
 
     @GetMapping("/{id}")
-    public Item getById(@PathVariable Long id) {
+    public ItemDto getById(@PathVariable Long id) {
         return itemService.getById(id);
     }
 
     @PostMapping
-    public Item createItem(@RequestHeader("X-Sharer-User-Id") Long userId,
-                           @Validated @RequestBody Item item) {
-        return itemService.createItem(userId, item);
+    public ItemDto createItem(@RequestHeader("X-Sharer-User-Id") Long userId,
+                              @Valid @RequestBody ItemDto itemDto) {
+        return itemService.createItem(userId, itemDto);
     }
 
     @PatchMapping("/{id}")
@@ -42,7 +41,7 @@ public class ItemController {
     }
 
     @GetMapping("/search")
-    public Collection<Item> search(@RequestParam String text) {
+    public Collection<ItemDto> search(@RequestParam String text) {
         return itemService.search(text);
     }
 

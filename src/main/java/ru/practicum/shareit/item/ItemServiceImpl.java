@@ -17,24 +17,29 @@ public class ItemServiceImpl implements ItemService {
     private final UserRepository userRepository;
 
     @Override
-    public Collection<Item> getAll() {
-        return itemRepository.getAll();
+    public Collection<ItemDto> getAll() {
+
+        return itemRepository.getAll().stream()
+                .map(ItemMapper::toItemDto)
+                .toList();
     }
 
-    public Item getById(Long id) {
-        return itemRepository.getById(id);
+    public ItemDto getById(Long id) {
+        return ItemMapper.toItemDto(itemRepository.getById(id));
     }
 
-    public Collection<Item> getByUserId(Long userId) {
-        return itemRepository.getByUserId(userId);
+    public Collection<ItemDto> getByUserId(Long userId) {
+        return itemRepository.getByUserId(userId).stream()
+                .map(ItemMapper::toItemDto)
+                .toList();
     }
 
-    public Item createItem(Long userId, Item item) {
+    public ItemDto createItem(Long userId, ItemDto itemDto) {
         if (!userRepository.getUserList().containsKey(userId)) {
             throw new NotFoundException("Пользователя с таким id не существует");
         }
-        item.setOwner(userId);
-        return itemRepository.createItem(item);
+        itemDto.setOwner(userId);
+        return ItemMapper.toItemDto(itemRepository.createItem(ItemMapper.toItem(itemDto)));
     }
 
     public ItemDto updateItem(Long userId, Long itemId, ItemDto itemDto) {
@@ -61,7 +66,7 @@ public class ItemServiceImpl implements ItemService {
         itemRepository.deleteItem(itemId);
     }
 
-    public Collection<Item> search(String text) {
+    public Collection<ItemDto> search(String text) {
         if (text == null || text.isBlank()) {
             return List.of();
         }
