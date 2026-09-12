@@ -23,8 +23,9 @@ public class ItemController {
     }
 
     @GetMapping("/{id}")
-    public ItemDto getById(@PathVariable Long id) {
-        return itemService.getById(id);
+    public ItemDto getById(@RequestHeader("X-Sharer-User-Id") Long userId,
+                           @PathVariable Long id) {
+        return itemService.getById(userId, id);
     }
 
     @PostMapping
@@ -49,5 +50,12 @@ public class ItemController {
     public void deleteItem(@RequestHeader("X-Sharer-User-Id") Long userId,
                            @PathVariable Long id) {
         itemService.deleteItem(userId, id);
+    }
+
+    @PostMapping("/{id}/comment")
+    public CommentDto addComment(@RequestHeader("X-Sharer-User-Id") Long userId,
+                                 @PathVariable Long id,
+                                 @RequestBody CommentDto commentDto) {
+        return itemService.addComment(userId, id, commentDto);
     }
 }
