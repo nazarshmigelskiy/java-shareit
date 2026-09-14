@@ -24,9 +24,11 @@ public class UserServiceImpl implements UserService {
                 () -> new NotFoundException("Пользователь с таким id не найден")));
     }
 
+    @Transactional
     public UserDto createUser(UserDto userDto) {
         if (userRepository.existsByEmail(userDto.getEmail()))
             throw new ConflictException("Пользователь с указанным Email уже существует");
+
         return UserMapper.toUserDto(userRepository.save(UserMapper.toUser(userDto)));
     }
 
@@ -44,9 +46,10 @@ public class UserServiceImpl implements UserService {
 
         if (userDto.getEmail() != null && !userDto.getEmail().isBlank()) user.setEmail(userDto.getEmail());
 
-        return UserMapper.toUserDto(userRepository.save(user));
+        return UserMapper.toUserDto(user);
     }
 
+    @Transactional
     public void deleteUser(Long id) {
         User user = userRepository.findById(id).orElseThrow(
                 () -> new NotFoundException("Пользователь с таким id не найден"));

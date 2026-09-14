@@ -15,9 +15,8 @@ import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserRepository;
 
 import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -66,23 +65,39 @@ public class ItemServiceImpl implements ItemService {
     }
 
     public Collection<ItemDto> getByUserId(Long userId) {
+        if (!userRepository.existsById(userId)) throw new NotFoundException("Пользователь с таким id не найден");
 
-        return itemRepository.findAllByOwnerId(userId)
-                .stream()
+        Collection<Item> items = itemRepository.findAllByOwnerId(userId);
+        List<Long> itemIds = items.stream()
+                .map(Item::getId)
+                .toList();
+
+        Map<Long, List<CommentDto>> commentsByItemId =
+                commentRepository.findAllByItemIdInOrderByCreatedDesc(itemIds)
+                        .stream()
+                        .collect(Collectors.groupingBy(
+                                comment -> comment.getItem().getId(),
+                                Collectors.mapping(
+                                        CommentMapper::toCommentDto,
+                                        Collectors.toList()
+                                )
+                        ));
+
+        return items.stream()
                 .map(item -> {
                     ItemDto itemDto = ItemMapper.toItemDto(item);
-                    Collection<CommentDto> comments =
-                            commentRepository
-                                    .findAllByItemIdOrderByCreatedDesc(item.getId())
-                                    .stream()
-                                    .map(CommentMapper::toCommentDto)
-                                    .toList();
-                    itemDto.setComments(comments);
+                    itemDto.setComments(
+                            commentsByItemId.getOrDefault(
+                                    item.getId(),
+                                    Collections.emptyList()
+                            )
+                    );
                     return itemDto;
                 })
                 .toList();
     }
 
+    @Transactional
     public ItemDto createItem(Long userId, ItemDto itemDto) {
         Item item = ItemMapper.toItem(itemDto);
         User owner = userRepository.findById(userId).orElseThrow(
@@ -110,6 +125,7 @@ public class ItemServiceImpl implements ItemService {
         return ItemMapper.toItemDto(item);
     }
 
+    @Transactional
     public void deleteItem(Long userId, Long itemId) {
         Item item = itemRepository.findById(itemId).orElseThrow(
                 () -> new NotFoundException("Предмет с таким id не найден"));
@@ -129,6 +145,7 @@ public class ItemServiceImpl implements ItemService {
                 .toList();
     }
 
+    @Transactional
     public CommentDto addComment(Long userId, Long itemId, CommentDto commentDto) {
         boolean canComment = bookingRepository.existsByBookerIdAndItemIdAndStatusAndEndBefore(
                 userId, itemId, Status.APPROVED, LocalDateTime.now());

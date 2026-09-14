@@ -129,6 +129,7 @@ public class BookingServiceImpl implements BookingService {
                 .toList();
     }
 
+    @Transactional
     public BookingDto createBooking(Long userId, NewBookingDto bookingDto) {
         User booker = userRepository.findById(userId)
                 .orElseThrow(() ->
@@ -160,9 +161,7 @@ public class BookingServiceImpl implements BookingService {
         booking.setItem(item);
         booking.setStatus(Status.WAITING);
 
-        return BookingMapper.toBookingDto(
-                bookingRepository.save(booking)
-        );
+        return BookingMapper.toBookingDto(bookingRepository.save(booking));
     }
 
     @Transactional
