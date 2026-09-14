@@ -4,6 +4,8 @@ import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingRequestHeaderException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -65,5 +67,28 @@ public class ErrorHandler {
     public ErrorResponse handleConflict(ConflictException e) {
         log.warn("Конфликтующие параметры запроса: {}", e.getMessage(), e);
         return new ErrorResponse("Параметр запроса вступил в конфликт с существующими данными", e.getMessage());
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(MissingRequestHeaderException.class)
+    public ErrorResponse handleMissingHeader(MissingRequestHeaderException e) {
+        log.warn("Отсутствует необходимый параметр заголовка: {}", e.getMessage(), e);
+        return new ErrorResponse("Отсутствует необходимый параметр заголовка", e.getMessage());
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ErrorResponse handleMissingRequestParam(MissingServletRequestParameterException e) {
+        log.warn("Отсутствует необходимый параметр запроса: {}", e.getMessage(), e);
+        return new ErrorResponse("Отсутствует необходимый параметр запроса", e.getMessage()
+        );
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(BadRequestException.class)
+    public ErrorResponse handleBadRequest(BadRequestException e) {
+        log.warn("Некорректный запрос: {}", e.getMessage());
+        return new ErrorResponse("Некорректный запрос", e.getMessage()
+        );
     }
 }
