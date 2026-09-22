@@ -1,53 +1,23 @@
 package ru.practicum.shareit.item;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Repository;
-import ru.practicum.shareit.exception.NotFoundException;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.Collection;
-import java.util.Map;
 
-@Repository
-@RequiredArgsConstructor
-@Getter
-public class ItemRepository {
-    private final Map<Long, Item> itemList;
+public interface ItemRepository extends JpaRepository<Item, Long> {
 
-    public Collection<Item> getAll() {
-        return itemList.values();
-    }
+    Collection<Item> findAllByOwnerId(Long userId);
 
-    public Item getById(Long id) {
-        if (!itemList.containsKey(id)) throw new NotFoundException("Предмета с указанным id не существует");
-        return itemList.get(id);
-    }
-
-    public Collection<Item> getByUserId(Long userId) {
-        return itemList.values().stream()
-                .filter(item -> item.getOwner().equals(userId))
-                .toList();
-    }
-
-    public Item createItem(Item item) {
-        item.setId(createNewId());
-        itemList.put(item.getId(), item);
-        return item;
-    }
-
-    public Item updateItem(Item item) {
-        return itemList.put(item.getId(), item);
-    }
-
-    public void deleteItem(Long id) {
-        itemList.remove(id);
-    }
-
-    private Long createNewId() {
-        long currentMaxId = itemList.keySet().stream()
-                .mapToLong(Long::longValue)
-                .max()
-                .orElse(0L);
-        return currentMaxId + 1;
-    }
+    @Query("""
+            SELECT i
+            FROM Item i
+            WHERE i.available = true
+              AND (
+                  LOWER(i.name) LIKE LOWER(CONCAT('%', :text, '%'))
+                  OR LOWER(i.description) LIKE LOWER(CONCAT('%', :text, '%'))
+              )
+            """)
+    Collection<Item> search(@Param("text") String text);
 }
