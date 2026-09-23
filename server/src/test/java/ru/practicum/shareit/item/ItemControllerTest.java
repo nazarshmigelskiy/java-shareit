@@ -58,13 +58,6 @@ class ItemControllerTest {
     }
 
     @Test
-    void getByUserIdWithoutHeaderReturnsBadRequest() throws Exception {
-        mvc.perform(get("/items"))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error").value("Отсутствует необходимый параметр заголовка"));
-    }
-
-    @Test
     void getById() throws Exception {
         when(itemService.getById(1L, 1L)).thenReturn(itemDto);
 

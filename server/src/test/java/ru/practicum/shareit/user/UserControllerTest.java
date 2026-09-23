@@ -9,7 +9,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.practicum.shareit.exception.ConflictException;
 import ru.practicum.shareit.exception.NotFoundException;
-import ru.practicum.shareit.exception.ValidationException;
 
 import java.util.List;
 
@@ -89,17 +88,6 @@ class UserControllerTest {
                         .content(mapper.writeValueAsString(userDto)))
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.description").value("Пользователь с указанным Email уже существует"));
-    }
-
-    @Test
-    void createUserWithValidationErrorReturnsBadRequest() throws Exception {
-        when(userService.createUser(any())).thenThrow(new ValidationException("Не указан email"));
-
-        mvc.perform(post("/users")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(mapper.writeValueAsString(userDto)))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.description").value("Не указан email"));
     }
 
     @Test

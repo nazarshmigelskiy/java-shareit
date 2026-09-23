@@ -30,11 +30,4 @@ public class ErrorHandler {
         log.warn("Некорректный запрос: {}", e.getMessage());
         return new ErrorResponse("Некорректный запрос", e.getMessage());
     }
-
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ErrorResponse handleUnexpected(Exception e) {
-        log.error("Непредвиденная ошибка: {}", e.getMessage(), e);
-        return new ErrorResponse("Непредвиденная ошибка", e.getMessage());
-    }
 }

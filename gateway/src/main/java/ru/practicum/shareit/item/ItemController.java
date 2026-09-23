@@ -6,6 +6,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 
 @RestController
 @RequiredArgsConstructor
@@ -45,6 +47,7 @@ public class ItemController {
 
     @GetMapping("/search")
     public ResponseEntity<Object> search(@RequestParam String text) {
+        if (text.isBlank()) return ResponseEntity.ok(List.of());
         return itemClient.search(text);
     }
 

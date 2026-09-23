@@ -159,15 +159,16 @@ public class ItemServiceImpl implements ItemService {
 
     @Transactional
     public CommentDto addComment(Long userId, Long itemId, CommentDto commentDto) {
+        User author = userRepository.findById(userId).orElseThrow(
+                () -> new NotFoundException("Пользователь с таким id не найден"));
+
+        Item item = itemRepository.findById(itemId).orElseThrow(
+                () -> new NotFoundException("Предмет с таким id не найден"));
+
         boolean canComment = bookingRepository.existsByBookerIdAndItemIdAndStatusAndEndBefore(
                 userId, itemId, Status.APPROVED, LocalDateTime.now());
 
         if (!canComment) throw new BadRequestException("Пользователь не может оставить комментарий");
-
-        User author = userRepository.findById(userId).orElseThrow(
-                () -> new NotFoundException("Пользователь с таким id не найден"));
-        Item item = itemRepository.findById(itemId).orElseThrow(
-                () -> new NotFoundException("Предмет с таким id не найден"));
 
         Comment comment = CommentMapper.toComment(commentDto);
         comment.setAuthor(author);

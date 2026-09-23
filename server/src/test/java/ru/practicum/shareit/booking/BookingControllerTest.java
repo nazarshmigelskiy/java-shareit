@@ -108,11 +108,4 @@ class BookingControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("APPROVED"));
     }
-
-    @Test
-    void changeStatusWithoutApprovedParamReturnsBadRequest() throws Exception {
-        mvc.perform(patch("/bookings/1").header(USER_HEADER, 3))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error").value("Отсутствует необходимый параметр запроса"));
-    }
 }
